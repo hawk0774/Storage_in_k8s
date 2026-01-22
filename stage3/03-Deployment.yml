@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-exchange-sc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-exchange-sc
+  template:
+    metadata:
+      labels:
+        app: data-exchange-sc
+    spec:
+      containers:
+      - name: busybox-writer
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args: ["while true; do echo $(date) >> /storage/data.txt; sleep 5; done"]
+        volumeMounts:
+        - name: sc-storage
+          mountPath: /storage
+      - name: multitool-reader
+        image: wbitt/network-multitool
+        command: ["/bin/sh", "-c"]
+        args: ["tail -f /storage/data.txt"]
+        volumeMounts:
+        - name: sc-storage
+          mountPath: /storage
+      volumes:
+      - name: sc-storage
+        persistentVolumeClaim:
+          claimName: local-sc-pvc
