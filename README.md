@@ -1,1 +1,1 @@
-# Storage_in_k8s
+# Хранение в K8s
